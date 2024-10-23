@@ -1,0 +1,9 @@
+{
+  "strings": {
+    "MOUNTAINSHRINEITEM": "Mons Crisium",
+    "ITEM_MOUNTAINSHRINEITEM_NAME": "Mons Crisium",
+    "ITEM_MOUNTAINSHRINEITEM_PICKUP": "Recieve extra items from the teleporter... <style=cDeath>BUT the stage boss is harder.</style>.",
+    "ITEM_MOUNTAINSHRINEITEM_DESC": "Defeating the stage boss yields <style=cIsUtility>1</style> <style=cStack>(+1 per stack)</style> extra item per player. The stage boss is <style=cDeath>%100</style> <style=cStack>(100% per stack)</style> more difficult.",
+    "ITEM_MOUNTAINSHRINEITEM_LORE": "",
+  }
+}
