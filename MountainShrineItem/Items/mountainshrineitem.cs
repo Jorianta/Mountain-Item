@@ -17,14 +17,15 @@ namespace MountainShrineItem
         public static ItemDef itemDef;
         // public static BuffDef chestBuff;
 
-        public static bool isEnabled = true;
-        public static int bonusItems = 1;
+        public static int bonusItems = ConfigManager.bonusItems.Value;
         //NOTE: the tp director has 600 credits by default
-        public static float bossCredits = 600f;
+        public static float bossCredits = ConfigManager.difficultyPercent.Value * 6;
+        public static float difficultyMultiplier = ConfigManager.difficultyPercent.Value/100;
+        public static bool multiplyShrines = ConfigManager.multiplyShrines.Value;
 
         internal static void Init()
         {
-            Debug.Log("Initializing Mons Crisium Item");
+            Log.Info("Initializing Mons Crisium Item");
             //ITEM//
             itemDef = ScriptableObject.CreateInstance<ItemDef>();
 
@@ -44,9 +45,10 @@ namespace MountainShrineItem
             itemDef.tags = new ItemTag[]
             {
                 ItemTag.Utility,
-                ItemTag.InteractableRelated,
+                ItemTag.CannotCopy,
+                ItemTag.CannotSteal,
                 ItemTag.AIBlacklist,
-                ItemTag.OnStageBeginEffect
+                ItemTag.HoldoutZoneRelated,
             };
 
             itemDef.pickupIconSprite = Addressables.LoadAssetAsync<Sprite>("RoR2/DLC1/FragileDamageBonus/texDelicateWatchIcon.png").WaitForCompletion();
@@ -74,56 +76,54 @@ namespace MountainShrineItem
 
         private static void Hooks()
         {
-            On.RoR2.BossGroup.DropRewards += BossGroup_DropRewards;
+            // On.RoR2.BossGroup.DropRewards += BossGroup_DropRewards;
             TeleporterInteraction.onTeleporterBeginChargingGlobal +=  TeleporterInteraction_onTeleporterBeginChargingGlobal;
         }
 
-        public static void BossGroup_DropRewards(On.RoR2.BossGroup.orig_DropRewards orig, BossGroup self)
-            {
-                if (NetworkServer.active)
-                {
-                    int itemCount = Util.GetItemCountForTeam(TeamIndex.Player, itemDef.itemIndex, true);
-                    Log.Debug(itemCount * bonusItems * Run.instance.participatingPlayerCount + " Bonus Items");
+        // public static void BossGroup_DropRewards(On.RoR2.BossGroup.orig_DropRewards orig, BossGroup self)
+        //     {
+        //         if (NetworkServer.active)
+        //         {
+        //             int stackCount = Util.GetItemCountForTeam(TeamIndex.Player, itemDef.itemIndex, true);
                     
-                    //Add 1 item per stack per player
-                    self.bonusRewardCount += itemCount * bonusItems * Run.instance.participatingPlayerCount;
-                }
-                orig(self);
-            }
+        //             //Add 1 item per stack per player
+        //             int itemsToAdd = stackCount * bonusItems * Run.instance.participatingPlayerCount;
+        //             if (multiplyShrines) itemsToAdd *= self.
+
+        //             Log.Debug("Items Added: " + stackCount * bonusItems * Run.instance.participatingPlayerCount);
+        //             self.bonusRewardCount += stackCount * bonusItems * Run.instance.participatingPlayerCount;
+        //         }
+        //         orig(self);
+        //     }
 
         public static void TeleporterInteraction_onTeleporterBeginChargingGlobal(TeleporterInteraction self)
         {
-            int itemCount = Util.GetItemCountForTeam(TeamIndex.Player, itemDef.itemIndex, true);
+            int stackCount = Util.GetItemCountForTeam(TeamIndex.Player, itemDef.itemIndex, true);
                 //Add Director Credits
             if (NetworkServer.active)
             {
-                if (self.bossDirector)
+                if (self.bossDirector && self.bossGroup)
                 {
-                    if (itemCount > 0)
+                    if (stackCount > 0)
                     {
-                        var creditsToAdd = bossCredits * itemCount;
-                        Log.Debug("Credits: " +creditsToAdd);
+                      
+                        var creditsToAdd = bossCredits * stackCount;
+                        if (multiplyShrines) creditsToAdd *= self.shrineBonusStacks + 1;
+
+                        Log.Debug("Added Credits: " + creditsToAdd);
                         self.bossDirector.monsterCredit += (int)(creditsToAdd * Mathf.Pow(Run.instance.compensatedDifficultyCoefficient, 0.5f));
+
+
+                        //Add 1 item per stack per player
+                        int itemsToAdd = stackCount * bonusItems * Run.instance.participatingPlayerCount;
+                        if (multiplyShrines) itemsToAdd *= self.shrineBonusStacks + 1;
+
+                        Log.Debug("Items Added: " + itemsToAdd);
+                        self.bossGroup.bonusRewardCount += itemsToAdd;
                     }
                 }
             }
         }
-
-        public class MountainItemBehaviour : MonoBehaviour
-        {
-
-            public void Start()
-            {
-                Log.Debug("MountainItemBehavior:Start()");
-
-
-                
-            }
-
-                    //Add extra drops
-            
-
-            
-        }
     }
 }
+

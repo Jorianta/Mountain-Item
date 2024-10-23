@@ -37,9 +37,10 @@ namespace MountainShrineItem
             Log.Init(Logger);
 
             pluginInfo = Info;
+            ConfigManager.Init(Paths.ConfigPath);
             // AssetBundle = AssetBundle.LoadFromFile(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(pluginInfo.Location), "impermanenceassetbundle"));
 
-            if (MountainShrineItem.isEnabled)
+            if (ConfigManager.isEnabled.Value)
             {
                 MountainShrineItem.Init();
             }
