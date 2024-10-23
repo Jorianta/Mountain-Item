@@ -21,7 +21,7 @@ namespace MountainShrineItem
             var Config = new ConfigFile(Path.Combine(configPath, "braquen-TheMountaininQuestion.cfg"), true);
 
             isEnabled = Config.Bind("MOUNTAINSHRINEITEM", "Enable", true, "Enables the item to appear in runs.");
-            multiplyShrines = Config.Bind("MOUNTAINSHRINEITEM", "Multiply Shrines", true, "When enabled, the item will multiply with shrines instead of add on top of them.");
+            multiplyShrines = Config.Bind("MOUNTAINSHRINEITEM", "Multiply Shrines", false, "When enabled, the item will multiply with shrines instead of add on top of them.");
 
             bonusItems = Config.Bind("MOUNTAINSHRINEITEM", "Bonus Item Count", 1, "Number of extra boss items per stack.");
             difficultyPercent = Config.Bind("MOUNTAINSHRINEITEM", "Difficulty scaling", 100f, "Percent extra credits gained by the Director per stack.");
